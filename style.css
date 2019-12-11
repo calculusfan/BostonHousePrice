@@ -1,0 +1,36 @@
+ /* Whole document: */
+body{
+  font-family: Helvetica;
+  font-size: 16pt;
+}
+/* Headers */
+h1,h2,h3,h4,h5,h6{
+  font-family: Bell MT;
+  font-weight: bold;
+}
+h1{
+  font-size: 29pt;
+}
+h2 {
+  font-size: 27px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 14px;
+}
+h6 {
+  font-size: 13px;
+}
+
+code.r{
+  font-size: 20px;
+}
+
+pre {
+  font-size: 20px
+}

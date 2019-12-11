@@ -1,0 +1,79 @@
+---
+title: Analyse l'impact des facteurs multiples sur le prix de logement à Boston
+subtitle: 4M015 TP Groupe 2, Sorbonne Université
+author: Qiaoran DONG, Chunyang FAN
+date: 5 Decembre 2019
+output: 
+  bookdown::html_document2:
+    css: style.css
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+linkcolor: red
+header-includes:
+- \usepackage[francais]{babel}
+- \usepackage{float}
+- \usepackage{booktabs}
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center',fig.pos = 'H')
+
+library(magrittr)
+library(kableExtra)
+library(ggthemes)
+library(Rmisc)
+library(plyr)
+library(leaps)
+
+options(knitr.table.format = "pandoc") 
+rm(list=ls()) #nettoyage complet de l'environnement
+```
+
+#是否需要用数学公式联系/贯穿全文？
+
+# Introduction
+```{r chargement, include = FALSE}
+#L'initialisation du jeu de données
+bd.tout <- read.table(file = "housing.csv")
+names(bd.tout) <- c('CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX','RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV')
+explications <- 
+  c("Taux de criminalité par habitant par ville", 
+    "Proportion de terrains résidentiels zonés pour des lots de plus de 25 000 pi.ca.", 
+    "Proportion d\'acres commerciales non commerciales par ville", 
+    "Variable fictive Charles River (= 1 si le tronçon délimite la rivière; 0 sinon)", 
+    "Concentration en oxydes nitriques (parties pour 10 millions)",
+    "Nombre moyen de pièces par logement",
+    "Proportion de logements occupés par leur propriétaire construits avant 1940",
+    "Distances pondérées vers cinq centres d\'emploi de Boston",
+    "Indice d\'accessibilité aux autoroutes radiales",
+    "Taux d\'impôt foncier de pleine valeur pour 10 000 $",
+    "Ratio élèves / enseignant par ville",
+    "1000 (Bk - 0,63)^2 où Bk est la proportion de noirs par ville",
+    "Pourcentage de statut inférieur de la population",
+    "Valeur médiane des logements occupés par le propriétaire en milliers de dollars")
+```
+Sans doute, l’économie joue un rôle primordial dans les développements d’un pays et d’une société, et dans la vie d’un individu. Comme une composante importante, le marché immobilier concerne directement le niveau de consommation et la stabilité de la société. Il a aussi un impact profond sur très nombreux domaines. Nous sommes, par conséquence, intéressés par l’analyse statistique sur le marché immobilier, qui comme un outil puissance, pourrait nous amener des résultats intéressants et des inspirations à notre étude.
+
+Dans notre projet, nous choisissons d’étudier le marché immobilier de Boston dont le base de données se divise en 14 aspects suivants :
+
+| |  |
+| --- | --------------- |
+| CRIM | Taux de criminalité par habitant par ville |
+| ZN | Proportion de terrains résidentiels zonés pour des lots de plus de 25 000 pi.ca. |
+| INDUS | Proportion d'acres commerciales non commerciales par ville |
+| CHAS | Variable fictive Charles River (= 1 si le tronçon délimite la rivière; 0 sinon) |
+| NOX | Concentration en oxydes nitriques (parties pour 10 millions) |
+| RM | Nombre moyen de pièces par logement |
+| AGE | Proportion de logements occupés par leur propriétaire construits avant 1940 |
+| DIS | Distances pondérées vers cinq centres d'emploi de Boston |
+| RAD | Indice d'accessibilité aux autoroutes radiales |
+| TAX | Taux d'impôt foncier de pleine valeur pour 10 000 $ |
+| PTRATIO | Ratio élèves / enseignant par ville |
+| B | 1000 (Bk - 0,63)^2 où Bk est la proportion de noirs par ville |
+| LSTAT | Pourcentage de statut inférieur de la population |
+| MEDV | Valeur médiane des logements occupés par le propriétaire en milliers de dollars |
+
+Nous voulons, en appliquant les savoirs acquis dans le cours, analyser la relation entre MEDV et les autres variables, et prédire MEDV par des valeurs connues. 
+
+Après l’analyse préliminaire, nous identifions que les variables CHAS et RAD sont qualitatives, et les autres sont quantitatives. (raison ???) Notre étude se compose donc de quatre parties : les choix de modèles de régressions linéaire simple et multiple, l’analyse de la régression linéaire simple, l’analyse de la régression linéaire multiple, et l’analyse de variance.
