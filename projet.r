@@ -182,3 +182,88 @@ eqm1 <- 0.01*sum((medv1-bd.svq.controle$MEDV)^2)
 eqm2 <- 0.01*sum((medv2-bd.svq.controle$MEDV)^2)
 
 ###### P3 ######
+bd.qua <- bd.tout[,c("MEDV","CHAS","RAD")]
+
+#### P3-1 représentation des données ####
+table(bd.qua$CHAS)
+boxplot(MEDV~CHAS, data = bd.qua)
+
+table()
+
+#### P3-2 estimation des paramètres pour CHAS ####
+reg.chas <- lm(MEDV~CHAS, data = bd.qua)
+summary(reg.chas)
+anova(reg.chas)
+
+n <- nrow(bd.qua)
+rs.chas <- rstudent(reg.chas)
+plot(1:n, rs.chas)
+
+df.chas <- data.frame(index=1:n,rs = rs.chas)
+df.chas <- data.frame(df.chas,CHAS=bd.qua$CHAS)
+head(df.chas)
+
+par(mfrow = (c(1,2)))
+plot(df.chas[df.chas$CHAS== 0, ]$index, df.chas[df.chas$CHAS == 0, ]$rs,main="CHAS = 0",xlab="Indice",ylab="Résidus studentisés")
+plot(df.chas[df.chas$CHAS== 1, ]$index, df.chas[df.chas$CHAS == 1, ]$rs,main="CHAS = 1",xlab="Indice",ylab="Résidus studentisés")
+
+par(mfrow = (c(1,1)))
+boxplot(rs ~CHAS, df.chas)
+
+#### P3-3 estimation des paramètres pour RAD ####
+reg.rad <- lm(MEDV~RAD, data = bd.qua)
+summary(reg.rad)
+anova(reg.rad)
+
+n <- nrow(bd.qua)
+rs.rad <- rstudent(reg.rad)
+plot(1:n, rs.rad)
+
+df.rad <- data.frame(index=1:n,rs = rs.rad)
+df.rad <- data.frame(df.rad, RAD=bd.qua$RAD)
+head(df.rad)
+
+par(mfrow = (c(1,2)))
+plot(df.rad[df.rad$RAD== 0, ]$index, df.rad[df.rad$RAD == 0, ]$rs,main="RAD = 0",xlab="Indice",ylab="Résidus studentisés")
+plot(df.rad[df.rad$RAD== 1, ]$index, df.rad[df.rad$RAD == 1, ]$rs,main="RAD = 1",xlab="Indice",ylab="Résidus studentisés")
+
+par(mfrow = (c(1,1)))
+boxplot(rs ~ RAD, df.rad)
+
+##### TEST SENSIBLE #####
+sem <- lm(MEDV ~ B,  data = bd.svq.modele) #sim = simple, opt=optimal
+summary(sem)
+anova(sem)
+cor(bd.tout)
+
+plot(bd.svq.modele$B, bd.svq.modele$MEDV)
+abline(sem, col='red')
+
+residu.sem <- rstudent(sem)
+
+n <- length(bd.svq.modele$MEDV)
+plot(1:n, residu.sem, xlab = 'Index', ylab='Résidus studentisés', main = 'Valeurs aberrantes')
+abline(-2, 0, lty = 2)
+abline(2, 0, lty = 2)
+IDval.ab <- (1:n)[abs(residu.sem)>2]
+text(IDval.ab, residu.sem[IDval.ab], IDval.ab, pos = 4, col = 'blue')
+
+levier.sem <- hatvalues(sem)
+
+plot(1:n, levier.sem, xlab = 'Index', ylab = 'Poids h_ii', main = 'Points leviers')
+p <- sem$rank
+seuil1 <- 2*p/n
+seuil2 <- 3*p/n
+abline(seuil1,0,lty=2)
+abline(seuil2,0,lty=3)
+IDlev <- (1:n)[levier.sem>seuil2]
+text(IDlev, levier.sem[IDlev], IDlev, pos = 4, col = 'blue')
+
+bd.sem.nonlev <- bd.svq.modele[-c(19,33,35,103,135,146,147,154,157,166,168,368,385),]
+sem.nonlev <- lm(MEDV ~ B, data = bd.sem.nonlev)
+summary(sem.nonlev)
+
+plot(bd.sem.nonlev$B, bd.sem.nonlev$MEDV)
+abline(sem, col='red')
+
+cor(bd.sem.nonlev)
