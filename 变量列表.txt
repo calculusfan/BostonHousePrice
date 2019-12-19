@@ -1,0 +1,26 @@
+bd.tout
+    |---bd.svq
+            |---bd.svq.modele       <---+-reg.sim.opt   <---+-residu.sim
+            |       |                   |                   |-residu.sim.std
+            |       |                   |                   |-levier.sim
+            |       |                   |                   |-cook.sim
+            |       |                   |-reg.mul.svq
+            |       |---bd.mul.opt  <---+-reg.mul.opt
+            |---bd.svq.controle <--
+    |---bd.qua                      <---+-reg.chas
+                                        |-reg.rad
+
+
+
+bd.tout +--mdds.tout  --+--mdds.svq |               <---reg.mul.svq
+        |               |           |--mdds.sim.opt <---reg.sim.opt <---+--residu.sim
+        |               |           |                                   |--rsdstd.sim
+        |               |           |                                   |--levier.sim
+        |               |           |                                   |--cook.sim
+        |               |           |--mdds.mul.opt <---reg.mul.opt
+        |               |
+        |               |--mdds.qua                 <---+--reg.chas <------residu.chas  <---df.chas
+        |                                               |--reg.rad  <------residu.rad   <---df.rad
+        |                                               |--cmb1
+        |                                               |--cmb2
+        |--ctrl.tout
